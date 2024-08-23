@@ -1,0 +1,51 @@
+name: Pulumi Deploy to AWS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  pulumi-deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      # Pulumi passphrase from GitHub Secrets for encrypting secrets
+      PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'  # Adjust the node version based on your project requirement
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Install Pulumi
+      uses: pulumi/action-install-pulumi-cli@v3
+      with:
+        pulumi-version: 'latest'
+
+    - name: Configure AWS credentials
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: eu-west-1  # Specify your AWS region
+      run: |
+        echo "AWS credentials configured"
+
+    - name: Pulumi login to S3 backend
+      run: pulumi login 's3://pulumi-state-bucket-df4d899?region=eu-west-1'
+
+    - name: Pulumi stack select
+      run: pulumi stack select state  # Change to the appropriate stack name (e.g., dev, prod)
+
+    - name: Preview Pulumi changes
+      run: pulumi preview
+
+    - name: Deploy Pulumi stack
+      run: pulumi up --yes
