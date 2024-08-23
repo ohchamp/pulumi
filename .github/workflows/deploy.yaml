@@ -8,6 +8,7 @@ on:
 jobs:
   pulumi-deploy:
     runs-on: ubuntu-latest
+   environment: prod 
 
     env:
       # Pulumi passphrase from GitHub Secrets for encrypting secrets
