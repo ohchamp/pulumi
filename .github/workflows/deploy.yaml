@@ -27,9 +27,7 @@ jobs:
       run: npm install
 
     - name: Install Pulumi
-      uses: pulumi/action-install-pulumi-cli@v3
-      with:
-        pulumi-version: 'latest'
+      uses: pulumi/actions@v3
 
     - name: Configure AWS credentials
       env:
