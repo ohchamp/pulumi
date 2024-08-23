@@ -10,6 +10,14 @@ jobs:
     runs-on: ubuntu-latest
     environment: prod  # Correctly indented
 
+    - name: Configure AWS credentials
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: eu-west-1  # Specify your AWS region
+      run: |
+        echo "AWS credentials configured"  
+
     env:
       # Pulumi passphrase from GitHub Secrets for encrypting secrets
       PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
@@ -26,25 +34,23 @@ jobs:
     - name: Install dependencies
       run: npm install
 
-    - name: Install Pulumi
-      uses: pulumi/actions@v3
-
-    - name: Configure AWS credentials
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_REGION: eu-west-1  # Specify your AWS region
-      run: |
-        echo "AWS credentials configured"
-
     - name: Pulumi login to S3 backend
       run: pulumi login 's3://pulumi-state-bucket-df4d899?region=eu-west-1'
 
-    - name: Pulumi stack select
-      run: pulumi stack select state  # Change to the appropriate stack name (e.g., dev, prod)
 
     - name: Preview Pulumi changes
-      run: pulumi preview
+      uses: pulumi/actions@v5
+       with: 
+         command: preview
+         stack-name: state
+         env:
+           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
 
-    - name: Deploy Pulumi stack
-      run: pulumi up --yes
+    - name: Preview Pulumi changes
+      uses: pulumi/actions@v5
+       with: 
+         command: up
+         stack-name: state
+         env:
+           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}       
+
