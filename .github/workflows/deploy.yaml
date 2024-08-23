@@ -34,7 +34,7 @@ jobs:
       run: echo "AWS credentials configured"  
 
     - name: Pulumi login to S3 backend
-      run: pulumi login 's3://pulumi-state-bucket-df4d899?region=eu-west-1'
+      run: pulumi login s3://pulumi-state-bucket-df4d899
 
     - name: Pulumi Preview
       uses: pulumi/actions@v5
