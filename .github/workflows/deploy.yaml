@@ -31,8 +31,7 @@ jobs:
       with:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_REGION: eu-west-1  # Specify your AWS region
-      run: echo "AWS credentials configured"  
+        AWS_REGION: eu-west-1  # Specify your AWS region 
 
     - name: Pulumi login to S3 backend
       run: pulumi login 's3://pulumi-state-bucket-df4d899?region=eu-west-1'
