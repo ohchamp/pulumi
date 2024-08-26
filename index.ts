@@ -4,7 +4,7 @@ import * as awsx from "@pulumi/awsx";
 
 // Create an S3 bucket
 const pulumiStateBucket = new aws.s3.Bucket("pulumi-state-bucket", {
-    bucket: "my-pulumi-state-bucket-test-4",  // Ensure this is unique
+    bucket: "my-pulumi-state-bucket-test-5",  // Ensure this is unique
     versioning: {
         enabled: true,
     },
