@@ -39,6 +39,5 @@ jobs:
           stack-name: organization/state # When using an individual account, only use stack-name.
           color: always
           comment-on-pr: true
-          diff: false
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
