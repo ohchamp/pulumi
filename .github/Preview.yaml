@@ -5,11 +5,20 @@ jobs:
   preview:
     name: Preview
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v3.5.0
-        with:
-          node-version-file: package.json
+    environment: prod
+
+     env:
+      # Pulumi passphrase from GitHub Secrets for encrypting secrets
+      PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+
+　　　steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+  　 - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'  # Adjust the node version based on your project requirement
           
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
