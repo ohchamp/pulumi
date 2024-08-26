@@ -12,7 +12,7 @@ jobs:
     env:
       # Pulumi passphrase from GitHub Secrets for encrypting secrets
       PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
-　　
+      
 　　 steps:
     - name: Checkout code
       uses: actions/checkout@v3
