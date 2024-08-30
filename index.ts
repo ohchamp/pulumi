@@ -2,6 +2,9 @@ import * as aws from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
 import * as awsx from "@pulumi/awsx";
 
+const organizationId = "o-m4vdlthei3"; // Replace with your actual AWS Organization ID
+const accountid = "039612852088"; // Replace with your actual AWS Account ID
+
 // Reference the existing S3 bucket
 const existingBucketName = "cloudtrailbukcherorganas";
 
@@ -75,12 +78,26 @@ const cloudTrailLogRolePolicy = new aws.iam.RolePolicy("cloudTrailLogRolePolicy"
         "Version": "2012-10-17",
         "Statement": [
             {
+                "Sid": "AWSCloudTrailCreateLogStream",
                 "Effect": "Allow",
                 "Action": [
-                    "logs:CreateLogStream",
+                    "logs:CreateLogStream"
+                ],
+                "Resource": [
+                    "arn:aws:logs:eu-west-1:039612852088:log-group:${cloudTrailLogGroup.name}:log-stream:${organizationId}_*",
+                    "arn:aws:logs:eu-west-1:039612852088:log-group:${cloudTrailLogGroup.name}:log-stream::log-stream:039612852088_CloudTrail_eu-west-1*"
+                ]
+            },
+            {
+                "Sid": "AWSCloudTrailPutLogEvents",
+                "Effect": "Allow",
+                "Action": [
                     "logs:PutLogEvents"
                 ],
-                "Resource": "${cloudTrailLogGroup.arn}:*"
+                "Resource": [
+                    "arn:aws:logs:eu-west-1:${accountid}:log-group:${cloudTrailLogGroup.name}:log-stream:${organizationId}_*",
+                    "arn:aws:logs:eu-west-1:${accountid}:log-group:${cloudTrailLogGroup.name}:log-stream::log-stream:039612852088_CloudTrail_eu-west-1*","
+                ]
             }
         ]
     }`,
