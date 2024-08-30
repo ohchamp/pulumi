@@ -96,7 +96,7 @@ const cloudTrailLogRolePolicy = new aws.iam.RolePolicy("cloudTrailLogRolePolicy"
                 ],
                 "Resource": [
                     "arn:aws:logs:eu-west-1:${accountid}:log-group:${cloudTrailLogGroup.name}:log-stream:${organizationId}_*",
-                    "arn:aws:logs:eu-west-1:${accountid}:log-group:${cloudTrailLogGroup.name}:log-stream::log-stream:039612852088_CloudTrail_eu-west-1*","
+                    "arn:aws:logs:eu-west-1:${accountid}:log-group:${cloudTrailLogGroup.name}:log-stream::log-stream:039612852088_CloudTrail_eu-west-1*"
                 ]
             }
         ]
