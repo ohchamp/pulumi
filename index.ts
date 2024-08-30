@@ -1,21 +1,87 @@
-import * as pulumi from "@pulumi/pulumi";
 import * as aws from "@pulumi/aws";
+import * as pulumi from "@pulumi/pulumi";
 import * as awsx from "@pulumi/awsx";
 
-// Create an S3 bucket
-const pulumiStateBucket = new aws.s3.Bucket("pulumi-state-bucket", {
-    bucket: "my-pulumi-state-bucket-test-5",  // Ensure this is unique
-    versioning: {
-        enabled: true,
-    },
-    serverSideEncryptionConfiguration: {
-        rule: {
-            applyServerSideEncryptionByDefault: {
-                sseAlgorithm: "AES256",  // Server-side encryption
-            },
-        },
+// Reference the existing S3 bucket
+const existingBucketName = "cloudtrailbukcherorganas";
+
+// Create the IAM Role for CloudTrail to write to CloudWatch Logs
+const cloudTrailCWLogsRole = new aws.iam.Role("cloudTrailCWLogsRole", {
+    assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal({ Service: "cloudtrail.amazonaws.com" }),
+});
+
+// IAM Role attachment for CloudTrail to publish logs to CloudWatch
+const cloudTrailLogRoleAttachment = new aws.iam.RolePolicyAttachment("cloudTrailLogPolicyAttachment", {
+    role: cloudTrailCWLogsRole.name, // Use role name, not ARN
+    policyArn: aws.iam.ManagedPolicy.CloudWatchLogsFullAccess,
+});
+
+// CloudWatch Logs group to store CloudTrail logs
+const cloudTrailLogGroup = new aws.cloudwatch.LogGroup("cloudTrailLogGroup", {
+    retentionInDays: 90, // Customize log retention if needed
+});
+
+// Create the CloudTrail
+const cloudTrail = new aws.cloudtrail.Trail("organizationTrail", {
+    isOrganizationTrail: true,
+    s3BucketName: existingBucketName, // Assuming you already have the bucket
+    cloudWatchLogsGroupArn: cloudTrailLogGroup.arn,
+    cloudWatchLogsRoleArn: cloudTrailCWLogsRole.arn, // Referencing the role's ARN
+    includeGlobalServiceEvents: true,
+    isMultiRegionTrail: true,
+});
+
+// Metric Filter for detecting root usage
+const rootMetricFilter = new aws.cloudwatch.LogMetricFilter("rootMetricFilter", {
+    logGroupName: cloudTrailLogGroup.name,
+    pattern: "{ $.userIdentity.type = \"Root\" }",  // Correct pattern property
+    metricTransformation: {  // Use singular 'metricTransformation'
+        name: "RootUsage",
+        namespace: "CloudTrailMetrics",
+        value: "1",
     },
 });
 
-// Export the bucket name
-export const bucketName = pulumiStateBucket.bucket;
+// SNS Topic for sending notifications
+const snsTopic = new aws.sns.Topic("cloudTrailAlarmTopic");
+
+// Subscription to SNS topic (modify with your email or other endpoint)
+const snsSubscription = new aws.sns.TopicSubscription("snsSubscription", {
+    topic: snsTopic.arn,
+    protocol: "email", // You can also use "sms", "lambda", etc.
+    endpoint: "anascloudaws@gmail.com", // Replace with actual email
+});
+
+
+// CloudWatch Alarm for triggering when root activity is detected
+const rootUsageAlarm = new aws.cloudwatch.MetricAlarm("rootUsageAlarm", {
+    name: "RootActivityAlarm",  // Use 'alarmName' instead of 'name'
+    comparisonOperator: "GreaterThanOrEqualToThreshold",
+    evaluationPeriods: 1,
+    metricName: rootMetricFilter.metricTransformation.name,  // Use singular 'metricTransformation'
+    namespace: rootMetricFilter.metricTransformation.namespace,  // Access the singular 'metricTransformation'
+    period: 300, // Period in seconds
+    statistic: "Sum",
+    threshold: 1,
+    alarmActions: [snsTopic.arn],
+    alarmDescription: "Alarm when root activity is detected.",
+});
+
+
+// Allow CloudTrail to write to CloudWatch Logs
+const cloudTrailLogRolePolicy = new aws.iam.RolePolicy("cloudTrailLogRolePolicy", {
+    role: cloudTrailCWLogsRole.name,  // Use the role name, not the ARN
+    policy: pulumi.interpolate`{
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Effect": "Allow",
+                "Action": [
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents"
+                ],
+                "Resource": "${cloudTrailLogGroup.arn}:*"
+            }
+        ]
+    }`,
+});
