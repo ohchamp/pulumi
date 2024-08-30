@@ -28,7 +28,7 @@ const cloudTrailLogGroup = new aws.cloudwatch.LogGroup("cloudTrailLogGroup", {
 const cloudTrail = new aws.cloudtrail.Trail("organizationTrail", {
     isOrganizationTrail: true,
     s3BucketName: existingBucketName, // Assuming you already have the bucket
-    cloudWatchLogsGroupArn: cloudTrailLogGroup.arn,
+    cloudWatchLogsGroupArn: "${cloudTrailLogGroup.arn}:*",
     cloudWatchLogsRoleArn: cloudTrailCWLogsRole.arn, // Referencing the role's ARN
     includeGlobalServiceEvents: true,
     isMultiRegionTrail: true,
