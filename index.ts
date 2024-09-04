@@ -23,7 +23,7 @@ const bucketPolicyDocument = {
                 Service: "cloudtrail.amazonaws.com",
             },
             Action: "s3:GetBucketAcl",
-            Resource: pulumi.interpolate`arn:aws:s3:::${cloudTrailBucket.bucket}`, // Use correct ARN format for bucket
+            Resource: `arn:aws:s3:::${cloudTrailBucket.bucket}`, // Use correct ARN format for bucket
         },
         {
             Sid: "AWSCloudTrailWrite20150319",
@@ -32,7 +32,7 @@ const bucketPolicyDocument = {
                 Service: "cloudtrail.amazonaws.com",
             },
             Action: "s3:PutObject",
-            Resource: pulumi.interpolate`arn:aws:s3:::${cloudTrailBucket.bucket}/AWSLogs/${AccountNumbers.root}/*`, // Correct ARN format for object
+            Resource: `arn:aws:s3:::${cloudTrailBucket.bucket}/AWSLogs/${AccountNumbers.root}/*`, // Correct ARN format for object
             Condition: {
                 StringEquals: {
                     "s3:x-amz-acl": "bucket-owner-full-control",
@@ -46,7 +46,7 @@ const bucketPolicyDocument = {
                 Service: "cloudtrail.amazonaws.com",
             },
             Action: "s3:PutObject",
-            Resource: pulumi.interpolate`arn:aws:s3:::${cloudTrailBucket.bucket}/AWSLogs/${AccountNumbers.orgid}/*`, // Correct ARN format for object
+            Resource: `arn:aws:s3:::${cloudTrailBucket.bucket}/AWSLogs/${AccountNumbers.orgid}/*`, // Correct ARN format for object
             Condition: {
                 StringEquals: {
                     "s3:x-amz-acl": "bucket-owner-full-control",
