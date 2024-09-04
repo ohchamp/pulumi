@@ -35,7 +35,6 @@ jobs:
       - name: Run Pulumi Preview
         uses: pulumi/actions@v3
         with:
-          work-dir: infra/aws/logging
           command: preview
           stack-name: organization/state # When using an individual account, only use stack-name.
           color: always
