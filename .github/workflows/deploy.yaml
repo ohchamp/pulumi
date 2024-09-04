@@ -41,7 +41,6 @@ jobs:
     - name: Pulumi update
       uses: pulumi/actions@v3
       with:
-        work-dir: infra/aws/dev/logging
         command: up
         stack-name: organization/state # When using an individual account, only use stack-name.
       env:
