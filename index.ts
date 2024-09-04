@@ -9,55 +9,52 @@ const AccountNumbers = {
 
 // Create S3 bucket
 const cloudTrailBucket = new aws.s3.Bucket("cloudtrailBucket", {
-    bucket: "lykke-b2c-logging-logs-trail-test", // Correct bucket name
+    bucket: "lykke-b2c-logging-logs-trail-test",
 });
 
-// Define bucket policy document
-const bucketPolicyDocument = {
-    Version: "2012-10-17",
-    Statement: [
-        {
-            Sid: "AWSCloudTrailAclCheck",
-            Effect: "Allow",
-            Principal: {
-                Service: "cloudtrail.amazonaws.com",
-            },
-            Action: "s3:GetBucketAcl",
-            Resource: `arn:aws:s3:::${cloudTrailBucket.bucket}`, // Use correct ARN format for bucket
-        },
-        {
-            Sid: "AWSCloudTrailWrite20150319",
-            Effect: "Allow",
-            Principal: {
-                Service: "cloudtrail.amazonaws.com",
-            },
-            Action: "s3:PutObject",
-            Resource: `arn:aws:s3:::${cloudTrailBucket.bucket}/AWSLogs/${AccountNumbers.root}/*`, // Correct ARN format for object
-            Condition: {
-                StringEquals: {
-                    "s3:x-amz-acl": "bucket-owner-full-control",
-                },
-            },
-        },
-        {
-            Sid: "AWSCloudTrailWrite",
-            Effect: "Allow",
-            Principal: {
-                Service: "cloudtrail.amazonaws.com",
-            },
-            Action: "s3:PutObject",
-            Resource: `arn:aws:s3:::${cloudTrailBucket.bucket}/AWSLogs/${AccountNumbers.orgid}/*`, // Correct ARN format for object
-            Condition: {
-                StringEquals: {
-                    "s3:x-amz-acl": "bucket-owner-full-control",
-                },
-            },
-        },
-    ],
-};
-
-// Associate policy to S3 bucket
+// Create the bucket policy dynamically applying the bucket name
 const cloudTrailBucketPolicy = new aws.s3.BucketPolicy("cloudTrailBucketPolicy", {
     bucket: cloudTrailBucket.bucket,
-    policy: JSON.stringify(bucketPolicyDocument),
+    policy: cloudTrailBucket.bucket.apply(bucketName => JSON.stringify({
+        Version: "2012-10-17",
+        Statement: [
+            {
+                Sid: "AWSCloudTrailAclCheck",
+                Effect: "Allow",
+                Principal: {
+                    Service: "cloudtrail.amazonaws.com",
+                },
+                Action: "s3:GetBucketAcl",
+                Resource: `arn:aws:s3:::${cloudTrailBucket.bucket}`,
+            },
+            {
+                Sid: "AWSCloudTrailWrite20150319",
+                Effect: "Allow",
+                Principal: {
+                    Service: "cloudtrail.amazonaws.com",
+                },
+                Action: "s3:PutObject",
+                Resource: `arn:aws:s3:::${cloudTrailBucket.bucket}/AWSLogs/${AccountNumbers.root}/*`,
+                Condition: {
+                    StringEquals: {
+                        "s3:x-amz-acl": "bucket-owner-full-control",
+                    },
+                },
+            },
+            {
+                Sid: "AWSCloudTrailWrite",
+                Effect: "Allow",
+                Principal: {
+                    Service: "cloudtrail.amazonaws.com",
+                },
+                Action: "s3:PutObject",
+                Resource: `arn:aws:s3:::${cloudTrailBucket.bucket}/AWSLogs/${AccountNumbers.orgid}/*`,
+                Condition: {
+                    StringEquals: {
+                        "s3:x-amz-acl": "bucket-owner-full-control",
+                    },
+                },
+            },
+        ],
+    })),
 });
