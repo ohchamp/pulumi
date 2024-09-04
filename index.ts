@@ -3,8 +3,8 @@ import * as pulumi from "@pulumi/pulumi";
 
 // Define account numbers
 const AccountNumbers = {
-    root: "123456789012", // Replace with your root account number
-    orgid: "098765432109", // Replace with your organization ID account number
+    root: "039612852088", // Replace with your root account number
+    orgid: "o-m4vdlthei3", // Replace with your organization ID account number
 };
 
 // Create S3 bucket
