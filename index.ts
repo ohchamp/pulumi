@@ -9,7 +9,7 @@ const AccountNumbers = {
 
 // Create S3 bucket
 const cloudTrailBucket = new aws.s3.Bucket("cloudtrailBucket", {
-    bucket: "lykke-b2c-logging-logs-trail",
+    bucket: "lykke-b2c-logging-logs-trail-test",
 });
 
 // Define bucket policy document
