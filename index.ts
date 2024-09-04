@@ -25,7 +25,7 @@ const cloudTrailBucketPolicy = new aws.s3.BucketPolicy("cloudTrailBucketPolicy",
                     Service: "cloudtrail.amazonaws.com",
                 },
                 Action: "s3:GetBucketAcl",
-                Resource: `arn:aws:s3:::${cloudTrailBucket.bucket}`,
+                Resource: `arn:aws:s3:::${bucketName}`,
             },
             {
                 Sid: "AWSCloudTrailWrite20150319",
@@ -34,7 +34,7 @@ const cloudTrailBucketPolicy = new aws.s3.BucketPolicy("cloudTrailBucketPolicy",
                     Service: "cloudtrail.amazonaws.com",
                 },
                 Action: "s3:PutObject",
-                Resource: `arn:aws:s3:::${cloudTrailBucket.bucket}/AWSLogs/${AccountNumbers.root}/*`,
+                Resource: `arn:aws:s3:::${bucketName}/AWSLogs/${AccountNumbers.root}/*`,
                 Condition: {
                     StringEquals: {
                         "s3:x-amz-acl": "bucket-owner-full-control",
@@ -48,7 +48,7 @@ const cloudTrailBucketPolicy = new aws.s3.BucketPolicy("cloudTrailBucketPolicy",
                     Service: "cloudtrail.amazonaws.com",
                 },
                 Action: "s3:PutObject",
-                Resource: `arn:aws:s3:::${cloudTrailBucket.bucket}/AWSLogs/${AccountNumbers.orgid}/*`,
+                Resource: `arn:aws:s3:::${bucketName}/AWSLogs/${AccountNumbers.orgid}/*`,
                 Condition: {
                     StringEquals: {
                         "s3:x-amz-acl": "bucket-owner-full-control",
