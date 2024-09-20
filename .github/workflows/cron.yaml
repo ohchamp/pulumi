@@ -1,0 +1,88 @@
+name: Pulumi
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '*/5 * * * *' # Runs every 5 minutes
+
+jobs:
+  update:
+    name: Update
+    runs-on: ubuntu-latest
+    environment: prod
+
+    env:
+      # Pulumi passphrase from GitHub Secrets for encrypting secrets
+      PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'  # Adjust the node version based on your project requirement
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-region: ${{ secrets.AWS_REGION }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+    - name: Pulumi login to S3 backend
+      run: pulumi login 's3://pulumi-state-bucket-df4d899?region=eu-west-1'
+
+    - name: Install npm dependencies
+      run: npm install
+
+    - name: Pulumi update
+      uses: pulumi/actions@v3
+      with:
+        command: up
+        stack-name: organization/state
+      env:
+        PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+
+  scheduled-deploy:
+    name: Scheduled Deploy
+    runs-on: ubuntu-latest
+    environment: prod
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-region: ${{ secrets.AWS_REGION }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+    - name: Pulumi login to S3 backend
+      run: pulumi login 's3://pulumi-state-bucket-df4d899?region=eu-west-1'
+
+    - name: Install npm dependencies
+      run: npm install
+
+    - name: Pulumi update
+      uses: pulumi/actions@v3
+      with:
+        command: up
+        stack-name: organization/state
+      env:
+        PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
